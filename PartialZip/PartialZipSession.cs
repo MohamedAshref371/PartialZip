@@ -17,7 +17,7 @@ namespace PartialZip
         private HttpService _httpService;
         private DeflateService _deflateService;
 
-        private PartialZipInfo info;
+        private PartialZipInfo _info;
         private bool _isOpen = false;
 
         public PartialZipSession(string archiveUrl)
@@ -33,7 +33,7 @@ namespace PartialZip
         /// </summary>
         public async Task Open()
         {
-            info = await PrivateOpen();
+            _info = await PrivateOpen();
             _isOpen = true;
         }
 
@@ -46,7 +46,7 @@ namespace PartialZip
             if (!_isOpen)
                 throw new InvalidOperationException("The archive must be opened before getting the file list. Call Open() first.");
 
-            return info.CentralDirectory.Select(cd => cd.FileName).OrderBy(f => f);
+            return _info.CentralDirectory.Select(cd => cd.FileName).OrderBy(f => f);
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace PartialZip
             if (!_isOpen)
                 throw new InvalidOperationException("The archive must be opened before downloading files. Call Open() first.");
 
-            byte[] content = await Download(info, filePath);
+            byte[] content = await Download(_info, filePath);
             return content;
         }
 
