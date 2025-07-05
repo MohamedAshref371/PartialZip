@@ -48,6 +48,24 @@ namespace PartialZip
         }
 
         /// <summary>
+        /// Returns a list of all ZipEntries in the remote .zip archive
+        /// </summary>
+        /// <returns>List of ZipEntries</returns>
+        public IEnumerable<ZipEntry> GetZipEntryList()
+        {
+            if (!_isOpen)
+                throw new InvalidOperationException("The archive must be opened before getting the entries list. Call Open() first.");
+
+            return _info.CentralDirectory.Select(cd => new ZipEntry
+            {
+                FileName = cd.FileName,
+                CompressedSize = ZipEntry.FormatSize(cd.CompressedSize),
+                UncompressedSize = ZipEntry.FormatSize(cd.UncompressedSize),
+                LastModified = ZipEntry.DosDateTimeToDateTime(cd.ModifiedDate, cd.ModifiedTime).ToString()
+            }).OrderBy(ze => ze.FileName);
+        }
+
+        /// <summary>
         /// Downloads a specific file from a remote .zip archive
         /// </summary>
         /// <param name="filePath">Path of the file</param>
